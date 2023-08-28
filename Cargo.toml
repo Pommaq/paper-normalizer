@@ -1,13 +1,33 @@
 [package]
 name = "csv_parser"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
 license="MIT"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-clap = { version = "4.4.0", features = ["derive"] }
+[workspace]
+members = ["entities", "prompter"]
+
+[workspace.dependencies]
+clap = {version="4.4.0", features = ["derive"] }
 csv = "1.2.2"
 env_logger = "0.10.0"
 log = "0.4.20"
 serde = { version = "1.0.188", features = ["derive"] }
+inquire = "0.6.2"
+entities={path="./entities"}
+
+
+[dependencies]
+clap = { workspace=true, features = ["derive"] }
+csv = {workspace=true}
+env_logger = {workspace=true}
+log = {workspace=true}
+serde = { workspace=true, features = ["derive"] }
+entities={workspace=true}

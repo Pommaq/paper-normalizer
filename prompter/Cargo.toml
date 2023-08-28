@@ -1,0 +1,15 @@
+[package]
+name = "prompter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+inquire = {workspace=true}
+entities = {workspace=true}
+clap = { workspace=true, features = ["derive"] }
+env_logger.workspace = true
+csv.workspace = true
+strum = { version = "0.25.0", features = ["strum_macros", "derive"] }

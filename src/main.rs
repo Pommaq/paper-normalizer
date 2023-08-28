@@ -1,9 +1,9 @@
 use std::{fs::File, env};
 
 use clap::Parser;
+use ::entities::{ResultEntry, write_csv_file};
 use log::{info, debug};
 use modules::{base::NormalizedData, springer::SpringerEntry};
-use serde::Serialize;
 
 use crate::modules::ieee::IEEEEntry;
 
@@ -12,39 +12,18 @@ pub mod modules;
 
 type Handler = fn(File) -> Vec<NormalizedData>;
 
-#[derive(Serialize)]
-struct ResultEntry {
-    pub user: String,
-    // Implementation is dumb
-    // 'unable to write contents to output: Error(Serialize("serializing maps is not supported, if you have a use case, please file an issue at https://github.com/BurntSushi/rust-csv"))'
-    //#[serde(flatten)]
-    //pub inner: NormalizedData,
-    #[serde(rename="abstract")]
-    pub abstract_: String,
-    pub title: String,
-    pub authors: String,
-}
-
-fn write_csv_file(path: &str, content: Vec<ResultEntry>) -> Result<(), csv::Error> {
-    let mut writer = csv::Writer::from_path(path)?;
-    for entry in content {
-        writer.serialize(entry)?;
-    }
-
-    Ok(())
-}
 /// Allocates names to entries and writes them to target file
-fn allocate_results(names:&[&str], content: Vec<NormalizedData>) -> Vec<ResultEntry>{
+fn allocate_results<T: AsRef<str> + Into<String>>(names:&[T], content: Vec<NormalizedData>) -> Vec<ResultEntry>{
     let chunksize = content.len() / names.len() +1 ;
     debug!("chunksize is {}", chunksize);
 
     let mut entries = vec![];
     for (contents ,person) in content.chunks(chunksize).zip(names.iter()) {
-        info!("allocating {} entries to {}", contents.len(), person);
+        info!("allocating {} entries to {}", contents.len(), person.as_ref().to_string());
 
         for content in contents {
             entries.push(ResultEntry {
-                user: person.to_string(), abstract_: content.abstract_.to_string(), title: content.title.to_string(), authors: content.authors.to_string(),
+                user: person.as_ref().to_string(), abstract_: content.abstract_.to_string(), title: content.title.to_string(), authors: content.authors.to_string(),
             });
         }
     }
@@ -58,12 +37,11 @@ fn allocate_results(names:&[&str], content: Vec<NormalizedData>) -> Vec<ResultEn
 /// A tool for quickly filtering papers
 struct Arguments {
     pub output_file: String,
-
+    pub users: Vec<String>,
     #[clap(long)]
     pub ieee_source: Option<String>,
     #[clap(long)]
     pub springer_source: Option<String>,
-    pub names: Vec<String>,
 }
 fn main() {
     if env::var("RUST_LOG").is_err() {
@@ -97,7 +75,7 @@ fn main() {
     }
     debug!("has total of {} papers", papers.len());
 
-    let contents = allocate_results( &["timmy", "peter", "mia"], papers);
+    let contents = allocate_results( &args.users, papers);
 
     write_csv_file(&args.output_file, contents).expect("unable to write contents to output")
 
