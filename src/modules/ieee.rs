@@ -17,14 +17,14 @@ pub struct IEEEEntry {
     doi: String,
 }
 
-impl Into<NormalizedData> for IEEEEntry {
-    fn into(self) -> NormalizedData {
+impl From<IEEEEntry> for NormalizedData {
+    fn from(val: IEEEEntry) -> Self {
         NormalizedData {
-            abstract_: self.abstract_,
-            title: self.title,
-            authors: self.authors,
-            url: self.pdf_link,
-            doi: self.doi,
+            abstract_: val.abstract_,
+            title: val.title,
+            authors: val.authors,
+            url: val.pdf_link,
+            doi: val.doi,
         }
     }
 }

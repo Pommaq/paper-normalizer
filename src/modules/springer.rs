@@ -14,14 +14,14 @@ pub struct SpringerEntry {
     doi: String,
 }
 
-impl Into<NormalizedData> for SpringerEntry {
-    fn into(self) -> NormalizedData {
+impl From<SpringerEntry> for NormalizedData {
+    fn from(val: SpringerEntry) -> Self {
         NormalizedData {
             abstract_: "None given through the dumped data, visit the link".to_string(),
-            title: self.title,
-            authors: self.authors,
-            url: self.url,
-            doi: self.doi,
+            title: val.title,
+            authors: val.authors,
+            url: val.url,
+            doi: val.doi,
         }
     }
 }

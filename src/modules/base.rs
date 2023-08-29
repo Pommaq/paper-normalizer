@@ -31,7 +31,7 @@ impl<S: Read, T: DeserializeOwned + Into<NormalizedData>> Iterator for CSVSource
     type Item = NormalizedData;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next().map_or(None, |res| match res {
+        self.inner.next().and_then(|res| match res {
             Ok(data) => Some(data.into()),
             Err(err) => {
                 log::error!("{}", err);

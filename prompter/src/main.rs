@@ -1,7 +1,7 @@
 use std::{env, str::FromStr};
 
 use clap::Parser;
-use entities::{write_csv_file, ResultEntry};
+use entities::ResultEntry;
 use strum::{EnumString, EnumVariantNames, IntoStaticStr, VariantNames};
 
 #[derive(IntoStaticStr, EnumVariantNames, EnumString)]

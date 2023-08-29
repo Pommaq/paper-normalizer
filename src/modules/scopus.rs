@@ -15,14 +15,14 @@ pub struct ScopusEntry {
     doi: String,
 }
 
-impl Into<NormalizedData> for ScopusEntry {
-    fn into(self) -> NormalizedData {
-        NormalizedData {
+impl From<ScopusEntry> for NormalizedData {
+    fn from(val: ScopusEntry) -> Self {
+        Self {
             abstract_: "None given through the dumped data, visit the link".to_string(),
-            title: self.title,
-            authors: self.authors,
-            url: self.url,
-            doi: self.doi,
+            title: val.title,
+            authors: val.authors,
+            url: val.url,
+            doi: val.doi,
         }
     }
 }

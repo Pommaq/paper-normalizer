@@ -84,9 +84,9 @@ fn main() {
     ];
 
     let mut papers: Vec<NormalizedData> = handlers
-        .into_iter()
+        .iter()
         .filter(|(filename, _)| filename.is_some())
-        .map(|(x, handler)| {
+        .flat_map(|(x, handler)| {
             let filename = x.as_ref().unwrap();
             info!("Reading content from source {}", filename);
             let file = File::open(filename).expect("Unable to open file");
@@ -94,7 +94,6 @@ fn main() {
             debug!("Read {} entries", content.len());
             content.into_iter()
         })
-        .flatten()
         .collect();
 
     debug!("has total of {} papers", papers.len());
@@ -105,17 +104,15 @@ fn main() {
         let old_len = papers.len();
 
         let mut seen: HashMap<String, ()> = HashMap::new();
-        papers = papers
-            .into_iter()
-            .filter(|p| {
-                if seen.contains_key(&p.doi) {
-                    false
-                } else {
-                    seen.insert(p.doi.to_string(), ());
-                    true
-                }
-            })
-            .collect();
+        papers.retain(|p| {
+            if seen.contains_key(&p.doi) {
+                false
+            } else {
+                seen.insert(p.doi.to_string(), ());
+                true
+            }
+        });
+
         info!(
             "Filtered {} entries, we now have {} left",
             old_len - papers.len(),
