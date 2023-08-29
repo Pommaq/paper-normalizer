@@ -1,8 +1,8 @@
-use std::{fs::File, env};
+use std::{env, fs::File};
 
+use ::entities::{write_csv_file, ResultEntry};
 use clap::Parser;
-use ::entities::{ResultEntry, write_csv_file};
-use log::{info, debug};
+use log::{debug, info};
 use modules::{base::NormalizedData, springer::SpringerEntry};
 
 use crate::modules::{ieee::IEEEEntry, scopus::ScopusEntry};
@@ -13,17 +13,29 @@ pub mod modules;
 type Handler = fn(File) -> Vec<NormalizedData>;
 
 /// Allocates names to entries and writes them to target file
-fn allocate_results<T: AsRef<str> + Into<String>>(names:&[T], content: Vec<NormalizedData>) -> Vec<ResultEntry>{
-    let chunksize = content.len() / names.len() +1 ;
+fn allocate_results<T: AsRef<str> + Into<String>>(
+    names: &[T],
+    content: Vec<NormalizedData>,
+) -> Vec<ResultEntry> {
+    let chunksize = content.len() / names.len() + 1;
     debug!("chunksize is {}", chunksize);
 
     let mut entries = vec![];
-    for (contents ,person) in content.chunks(chunksize).zip(names.iter()) {
-        info!("allocating {} entries to {}", contents.len(), person.as_ref().to_string());
+    for (contents, person) in content.chunks(chunksize).zip(names.iter()) {
+        info!(
+            "allocating {} entries to {}",
+            contents.len(),
+            person.as_ref().to_string()
+        );
 
         for content in contents {
             entries.push(ResultEntry {
-                user: person.as_ref().to_string(), abstract_: content.abstract_.to_string(), title: content.title.to_string(), authors: content.authors.to_string(), url: content.url.to_string()
+                user: person.as_ref().to_string(),
+                abstract_: content.abstract_.to_string(),
+                title: content.title.to_string(),
+                authors: content.authors.to_string(),
+                url: content.url.to_string(),
+                doi: content.doi.to_string(),
             });
         }
     }
@@ -54,11 +66,11 @@ fn main() {
 
     let args = Arguments::parse();
 
-    let from_ieee_source : Handler = |source: File| {
+    let from_ieee_source: Handler = |source: File| {
         let reader = modules::base::CSVSource::<_, IEEEEntry>::new(source);
         reader.collect::<Vec<NormalizedData>>()
     };
-    let from_springer_source: Handler = |source: File | {
+    let from_springer_source: Handler = |source: File| {
         let reader = modules::base::CSVSource::<_, SpringerEntry>::new(source);
         reader.collect::<Vec<NormalizedData>>()
     };
@@ -69,9 +81,13 @@ fn main() {
     };
 
     let mut papers = vec![];
-    let handlers : &[(Option<String>, Handler)]= &[(args.ieee_source, from_ieee_source), (args.springer_source, from_springer_source), (args.scopus_source, from_scopus_source)];
+    let handlers: &[(Option<String>, Handler)] = &[
+        (args.ieee_source, from_ieee_source),
+        (args.springer_source, from_springer_source),
+        (args.scopus_source, from_scopus_source),
+    ];
 
-    for (source, handler) in handlers{
+    for (source, handler) in handlers {
         if let Some(filename) = source {
             info!("Reading content from IEEE source {}", filename);
             let file = File::open(filename).expect("Unable to open file");
@@ -79,12 +95,10 @@ fn main() {
             debug!("Read {} entries", content.len());
             papers.append(&mut content);
         }
-    
     }
     debug!("has total of {} papers", papers.len());
 
-    let contents = allocate_results( &args.users, papers);
+    let contents = allocate_results(&args.users, papers);
 
     write_csv_file(&args.output_file, contents).expect("unable to write contents to output")
-
 }

@@ -1,7 +1,7 @@
 use std::{env, str::FromStr};
 
 use clap::Parser;
-use entities::{ResultEntry, write_csv_file};
+use entities::{write_csv_file, ResultEntry};
 use strum::{EnumString, EnumVariantNames, IntoStaticStr, VariantNames};
 
 #[derive(IntoStaticStr, EnumVariantNames, EnumString)]
@@ -45,8 +45,6 @@ struct Arguments {
     pub names: Vec<String>,
 }
 
-
-
 fn main() {
     if env::var("RUST_LOG").is_err() {
         env::set_var("RUST_LOG", "debug")
@@ -70,7 +68,6 @@ fn main() {
                 Action::Accept => accepted.push(content),
                 Action::Maybe => questionable.push(content),
             }
-
         } // else ignore it
     }
 
