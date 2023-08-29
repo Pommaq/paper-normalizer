@@ -1,11 +1,12 @@
-use std::{collections::HashMap, env, fs::File, time::Instant, cmp::min};
+use std::{cmp::min, collections::HashMap, env, fs::File, time::Instant};
 
+use crate::modules::{ieee::IEEEEntry, scopus::ScopusEntry};
 use ::entities::{write_csv_file, ResultEntry};
 use clap::Parser;
 use log::{debug, info};
 use modules::{base::NormalizedData, springer::SpringerEntry};
-
-use crate::modules::{ieee::IEEEEntry, scopus::ScopusEntry};
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 pub mod modules;
 
@@ -119,6 +120,10 @@ fn main() {
 
         info!("Filtered {} entries", old_len - papers.len(),);
     }
+    // So we dont end up with data from only one of the sources
+    papers.shuffle(&mut thread_rng());
+
+    // Respect limits
     let final_papers;
     if let Some(limit) = args.limit {
         final_papers = &papers[0..min(limit, papers.len())];
@@ -129,6 +134,7 @@ fn main() {
     } else {
         final_papers = &papers[0..];
     }
+
     info!("Successfully aggregated {} entries", final_papers.len());
     let contents = allocate_results(&args.users, final_papers);
 
