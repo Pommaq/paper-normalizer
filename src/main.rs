@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, fs::File, time::Instant};
+use std::{collections::HashMap, env, fs::File, time::Instant, cmp::min};
 
 use ::entities::{write_csv_file, ResultEntry};
 use clap::Parser;
@@ -121,7 +121,7 @@ fn main() {
     }
     let final_papers;
     if let Some(limit) = args.limit {
-        final_papers = &papers[0..limit];
+        final_papers = &papers[0..min(limit, papers.len())];
         info!(
             "Removed {} entries due to set limit",
             papers.len() - final_papers.len()
