@@ -55,24 +55,19 @@ fn main() {
 
     let mut rdr = csv::Reader::from_path(args.input_file).expect("unable to open input file");
 
-    let mut accepted = vec![];
-    let mut denied = vec![];
-    let mut questionable = vec![];
+    let mut accepted = csv::Writer::from_path("accepted.csv").unwrap();
+    let mut denied = csv::Writer::from_path("rejected.csv").unwrap();
+    let mut questionable = csv::Writer::from_path("questionable.csv").unwrap();
 
     for raw_content in rdr.deserialize::<ResultEntry>() {
         let content = raw_content.unwrap();
         if args.names.contains(&content.user) {
             // Prompt if we should keep it
             match prompt_entry(&content, args.titles, args.abstracts) {
-                Action::Deny => denied.push(content),
-                Action::Accept => accepted.push(content),
-                Action::Maybe => questionable.push(content),
+                Action::Deny => denied.serialize(content).unwrap(),
+                Action::Accept => accepted.serialize(content).unwrap(),
+                Action::Maybe => questionable.serialize(content).unwrap(),
             }
         } // else ignore it
     }
-
-    // Save the output
-    write_csv_file("rejected.csv", denied).unwrap();
-    write_csv_file("accepted.csv", accepted).unwrap();
-    write_csv_file("questionable.csv", questionable).unwrap();
 }

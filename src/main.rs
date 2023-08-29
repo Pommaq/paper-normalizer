@@ -82,7 +82,7 @@ fn main() {
         (args.springer_source, from_springer_source),
         (args.scopus_source, from_scopus_source),
     ];
-    
+
     let mut papers: Vec<NormalizedData> = handlers
         .into_iter()
         .filter(|(filename, _)| filename.is_some())
@@ -93,8 +93,9 @@ fn main() {
             let content = handler(file);
             debug!("Read {} entries", content.len());
             content.into_iter()
-        }).flatten().collect()
-        ;
+        })
+        .flatten()
+        .collect();
 
     debug!("has total of {} papers", papers.len());
 
@@ -104,14 +105,17 @@ fn main() {
         let old_len = papers.len();
 
         let mut seen: HashMap<String, ()> = HashMap::new();
-        papers = papers.into_iter().filter(|p| {
-            if seen.contains_key(&p.doi) {
-                false
-            } else {
-                seen.insert(p.doi.to_string(), ());
-                true
-            }
-        }).collect();
+        papers = papers
+            .into_iter()
+            .filter(|p| {
+                if seen.contains_key(&p.doi) {
+                    false
+                } else {
+                    seen.insert(p.doi.to_string(), ());
+                    true
+                }
+            })
+            .collect();
         info!(
             "Filtered {} entries, we now have {} left",
             old_len - papers.len(),
