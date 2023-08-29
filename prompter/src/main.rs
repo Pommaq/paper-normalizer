@@ -17,6 +17,7 @@ fn prompt_entry(entry: &ResultEntry, titles: bool, abstracts: bool) -> Action {
         println!("Title:\n{}", entry.title);
     }
     println!("Authors:\n{}", entry.authors);
+    println!("URL:\n{}", entry.url);
     if abstracts {
         println!("Abstract:\n{}", entry.abstract_);
     }

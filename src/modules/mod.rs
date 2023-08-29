@@ -12,11 +12,12 @@ pub mod base {
         pub abstract_: String,
         pub title: String,
         pub authors: String,
+        pub url: String,
     }
     
     impl NormalizedData {
-        pub fn new(abstract_: &str, title: &str, authors:&str) -> Self {
-            Self { abstract_: abstract_.to_string(), title: title.to_string(), authors: authors.to_string() }
+        pub fn new(abstract_: &str, title: &str, authors:&str, url: &str,) -> Self {
+            Self { abstract_: abstract_.to_string(), title: title.to_string(), authors: authors.to_string() , url: url.to_string()}
         }
     }
     

@@ -23,7 +23,7 @@ fn allocate_results<T: AsRef<str> + Into<String>>(names:&[T], content: Vec<Norma
 
         for content in contents {
             entries.push(ResultEntry {
-                user: person.as_ref().to_string(), abstract_: content.abstract_.to_string(), title: content.title.to_string(), authors: content.authors.to_string(),
+                user: person.as_ref().to_string(), abstract_: content.abstract_.to_string(), title: content.title.to_string(), authors: content.authors.to_string(), url: content.url.to_string()
             });
         }
     }

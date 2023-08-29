@@ -11,6 +11,7 @@ pub struct ResultEntry {
     pub abstract_: String,
     pub title: String,
     pub authors: String,
+    pub url: String,
 }
 pub fn write_csv_file(path: &str, content: Vec<ResultEntry>) -> Result<(), csv::Error> {
     let mut writer = csv::Writer::from_path(path)?;

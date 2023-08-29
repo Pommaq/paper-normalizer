@@ -11,10 +11,13 @@ pub struct IEEEEntry {
     title: String,
     #[serde(rename="Abstract")]
     abstract_: String,
+
+    #[serde(rename="PDF Link")]
+    pdf_link: String,
 }
 
 impl Into <NormalizedData>for IEEEEntry {
     fn into(self) -> NormalizedData {
-        NormalizedData { abstract_: self.abstract_, title: self.title, authors: self.authors }
+        NormalizedData { abstract_: self.abstract_, title: self.title, authors: self.authors , url:self.pdf_link}
     }
 }
