@@ -1,5 +1,5 @@
 use std::{env, str::FromStr};
-
+use colored::Colorize;
 use clap::Parser;
 use entities::ResultEntry;
 use strum::{EnumString, EnumVariantNames, IntoStaticStr, VariantNames};
@@ -14,12 +14,12 @@ enum Action {
 fn prompt_entry(entry: &ResultEntry, titles: bool, abstracts: bool) -> Action {
     let choices = Action::VARIANTS;
     if titles {
-        println!("Title:\n{}", entry.title);
+        println!("Title:\n{}", entry.title.green());
     }
-    println!("Authors:\n{}", entry.authors);
-    println!("URL:\n{}", entry.url);
+    println!("Authors:\n{}", entry.authors.cyan());
+    println!("URL:\n{}", entry.url.blue());
     if abstracts {
-        println!("Abstract:\n{}", entry.abstract_);
+        println!("Abstract:\n{}", entry.abstract_.green());
     }
     let choice = inquire::Select::new("Please choose what to do with it", choices.to_vec())
         .prompt()

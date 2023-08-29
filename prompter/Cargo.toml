@@ -13,3 +13,4 @@ clap = { workspace=true, features = ["derive"] }
 env_logger.workspace = true
 csv.workspace = true
 strum = { version = "0.25.0", features = ["strum_macros", "derive"] }
+colored = "2.0.4"
