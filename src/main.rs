@@ -5,7 +5,7 @@ use ::entities::{ResultEntry, write_csv_file};
 use log::{info, debug};
 use modules::{base::NormalizedData, springer::SpringerEntry};
 
-use crate::modules::ieee::IEEEEntry;
+use crate::modules::{ieee::IEEEEntry, scopus::ScopusEntry};
 
 pub mod entities;
 pub mod modules;
@@ -42,6 +42,9 @@ struct Arguments {
     pub ieee_source: Option<String>,
     #[clap(long)]
     pub springer_source: Option<String>,
+
+    #[clap(long)]
+    pub scopus_source: Option<String>,
 }
 fn main() {
     if env::var("RUST_LOG").is_err() {
@@ -60,8 +63,13 @@ fn main() {
         reader.collect::<Vec<NormalizedData>>()
     };
 
+    let from_scopus_source: Handler = |source: File| {
+        let reader = modules::base::CSVSource::<_, ScopusEntry>::new(source);
+        reader.collect::<Vec<NormalizedData>>()
+    };
+
     let mut papers = vec![];
-    let handlers : &[(Option<String>, Handler)]= &[(args.ieee_source, from_ieee_source), (args.springer_source, from_springer_source)];
+    let handlers : &[(Option<String>, Handler)]= &[(args.ieee_source, from_ieee_source), (args.springer_source, from_springer_source), (args.scopus_source, from_scopus_source)];
 
     for (source, handler) in handlers{
         if let Some(filename) = source {
