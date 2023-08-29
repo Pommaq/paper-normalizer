@@ -1,18 +1,17 @@
-use std::{env, str::FromStr};
-use colored::Colorize;
 use clap::Parser;
+use colored::Colorize;
 use entities::ResultEntry;
+use std::{env, str::FromStr};
 use strum::{EnumString, EnumVariantNames, IntoStaticStr, VariantNames};
 
 #[derive(IntoStaticStr, EnumVariantNames, EnumString)]
 enum Action {
-    Deny,
     Accept,
     Maybe,
+    Deny,
 }
 
 fn prompt_entry(entry: &ResultEntry, titles: bool, abstracts: bool) -> Action {
-    let choices = Action::VARIANTS;
     if titles {
         println!("Title:\n{}", entry.title.green());
     }
@@ -21,20 +20,21 @@ fn prompt_entry(entry: &ResultEntry, titles: bool, abstracts: bool) -> Action {
     if abstracts {
         println!("Abstract:\n{}", entry.abstract_.green());
     }
-    let choice = inquire::Select::new("Please choose what to do with it", choices.to_vec())
-        .prompt()
-        .unwrap();
+    let choice = inquire::Select::new(
+        "Please choose what to do with it",
+        Action::VARIANTS.to_vec(),
+    )
+    .prompt()
+    .unwrap();
     Action::from_str(choice).unwrap()
 }
 
 #[derive(Parser)]
 struct Arguments {
-    #[arg(group = "mode")]
     #[clap(long, short)]
     /// Prompt for titles
     pub titles: bool,
 
-    #[arg(group = "mode")]
     #[clap(long, short)]
     /// Prompt for abstracts
     pub abstracts: bool,

@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::fs::File;
 
 use serde::de::DeserializeOwned;
 
@@ -24,27 +24,23 @@ impl NormalizedData {
     }
 }
 
-pub struct CSVSource<S: Read, T: DeserializeOwned + Into<NormalizedData>> {
-    inner: csv::DeserializeRecordsIntoIter<S, T>,
+pub struct CSVSource<T: DeserializeOwned + Into<NormalizedData>> {
+    inner: Box<dyn Iterator<Item = T>>,
 }
-impl<S: Read, T: DeserializeOwned + Into<NormalizedData>> Iterator for CSVSource<S, T> {
-    type Item = NormalizedData;
+impl<T: DeserializeOwned + Into<NormalizedData>> Iterator for CSVSource<T> {
+    type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next().and_then(|res| match res {
-            Ok(data) => Some(data.into()),
-            Err(err) => {
-                log::error!("{}", err);
-                None
-            }
-        })
+        self.inner.next()
     }
 }
 
-impl<S: Read, T: DeserializeOwned + Into<NormalizedData>> CSVSource<S, T> {
-    pub fn new(source: S) -> Self {
+impl<T: DeserializeOwned + Into<NormalizedData> + 'static> CSVSource<T> {
+    pub fn from_file(source: File) -> Self {
         let rdr = csv::Reader::from_reader(source);
-        let inner = rdr.into_deserialize();
-        Self { inner }
+        let inner = rdr.into_deserialize().filter_map(|p| p.ok());
+        Self {
+            inner: Box::new(inner),
+        }
     }
 }

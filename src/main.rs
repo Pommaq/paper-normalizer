@@ -7,7 +7,6 @@ use modules::{base::NormalizedData, springer::SpringerEntry};
 
 use crate::modules::{ieee::IEEEEntry, scopus::ScopusEntry};
 
-pub mod entities;
 pub mod modules;
 
 type Handler = fn(File) -> Vec<NormalizedData>;
@@ -64,17 +63,17 @@ fn main() {
     let args = Arguments::parse();
 
     let from_ieee_source: Handler = |source: File| {
-        let reader = modules::base::CSVSource::<_, IEEEEntry>::new(source);
-        reader.collect::<Vec<NormalizedData>>()
+        let reader = modules::base::CSVSource::<IEEEEntry>::from_file(source);
+        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
     };
     let from_springer_source: Handler = |source: File| {
-        let reader = modules::base::CSVSource::<_, SpringerEntry>::new(source);
-        reader.collect::<Vec<NormalizedData>>()
+        let reader = modules::base::CSVSource::<SpringerEntry>::from_file(source);
+        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
     };
 
     let from_scopus_source: Handler = |source: File| {
-        let reader = modules::base::CSVSource::<_, ScopusEntry>::new(source);
-        reader.collect::<Vec<NormalizedData>>()
+        let reader = modules::base::CSVSource::<ScopusEntry>::from_file(source);
+        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
     };
 
     let handlers: &[(Option<String>, Handler)] = &[
