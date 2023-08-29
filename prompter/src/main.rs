@@ -15,7 +15,6 @@ fn prompt_entry(entry: &ResultEntry, titles: bool, abstracts: bool) -> Action {
     if titles {
         println!("Title:\n{}", entry.title.green());
     }
-    println!("Authors:\n{}", entry.authors.cyan());
     println!("URL:\n{}", entry.url.blue());
     if abstracts {
         println!("Abstract:\n{}", entry.abstract_.green());

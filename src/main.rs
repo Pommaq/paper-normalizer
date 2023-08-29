@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, fs::File};
+use std::{collections::HashMap, env, fs::File, time::Instant};
 
 use ::entities::{write_csv_file, ResultEntry};
 use clap::Parser;
@@ -14,7 +14,7 @@ type Handler = fn(File) -> Vec<NormalizedData>;
 /// Allocates names to entries and writes them to target file
 fn allocate_results<T: AsRef<str> + Into<String>>(
     names: &[T],
-    content: Vec<NormalizedData>,
+    content: &[NormalizedData],
 ) -> Vec<ResultEntry> {
     let entries: Vec<ResultEntry> = content
         .iter()
@@ -53,10 +53,15 @@ struct Arguments {
     #[clap(short, long)]
     /// Remove duplicate articles based on DOI
     pub deduplicate: bool,
+
+    #[clap(short, long)]
+    /// Limit the number of entries collected
+    pub limit: Option<usize>,
 }
 fn main() {
+    let start = Instant::now();
     if env::var("RUST_LOG").is_err() {
-        env::set_var("RUST_LOG", "debug")
+        env::set_var("RUST_LOG", "info")
     }
     env_logger::init();
 
@@ -112,14 +117,23 @@ fn main() {
             }
         });
 
-        info!(
-            "Filtered {} entries, we now have {} left",
-            old_len - papers.len(),
-            papers.len()
-        );
+        info!("Filtered {} entries", old_len - papers.len(),);
     }
+    let final_papers;
+    if let Some(limit) = args.limit {
+        final_papers = &papers[0..limit];
+        info!(
+            "Removed {} entries due to set limit",
+            papers.len() - final_papers.len()
+        );
+    } else {
+        final_papers = &papers[0..];
+    }
+    info!("Successfully aggregated {} entries", final_papers.len());
+    let contents = allocate_results(&args.users, final_papers);
 
-    let contents = allocate_results(&args.users, papers);
+    write_csv_file(&args.output_file, contents).expect("unable to write contents to output");
 
-    write_csv_file(&args.output_file, contents).expect("unable to write contents to output")
+    let end = Instant::now();
+    info!("Finished after {} milliseconds", (end - start).as_millis());
 }
