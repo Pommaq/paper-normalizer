@@ -7,10 +7,16 @@ use log::{debug, info};
 use modules::{base::NormalizedData, springer::SpringerEntry};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use serde::de::DeserializeOwned;
 
 pub mod modules;
 
 type Handler = fn(File) -> Vec<NormalizedData>;
+
+fn from_generic_source<T: DeserializeOwned + Into<NormalizedData> + 'static>(source: File) -> Vec<NormalizedData> {
+    let reader = modules::base::CSVSource::<T>::from_file(source);
+    reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
+}
 
 /// Allocates names to entries and writes them to target file
 fn allocate_results<T: AsRef<str> + Into<String>>(
@@ -73,24 +79,11 @@ fn main() {
 
     let args = Arguments::parse();
 
-    let from_ieee_source: Handler = |source: File| {
-        let reader = modules::base::CSVSource::<IEEEEntry>::from_file(source);
-        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
-    };
-    let from_springer_source: Handler = |source: File| {
-        let reader = modules::base::CSVSource::<SpringerEntry>::from_file(source);
-        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
-    };
+    let from_ieee_source: Handler = from_generic_source::<IEEEEntry>;
+    let from_springer_source: Handler = from_generic_source::<SpringerEntry>;
+    let from_scopus_source: Handler = from_generic_source::<ScopusEntry>;
+    let from_prefiltered_source: Handler = from_generic_source::<ResultEntry>;
 
-    let from_scopus_source: Handler = |source: File| {
-        let reader = modules::base::CSVSource::<ScopusEntry>::from_file(source);
-        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
-    };
-
-    let from_prefiltered_source: Handler = |source: File| {
-        let reader = modules::base::CSVSource::<ResultEntry>::from_file(source);
-        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
-    };
 
     let handlers: &[(Option<String>, Handler)] = &[
         (args.ieee_source, from_ieee_source),
