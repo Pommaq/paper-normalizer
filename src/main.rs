@@ -9,8 +9,10 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use serde::de::DeserializeOwned;
 
+/// Contains different data aggregation structures
 pub mod modules;
 
+/// Implements a module to allow data normalization
 type Handler = fn(File) -> Vec<NormalizedData>;
 
 fn from_generic_source<T: DeserializeOwned + Into<NormalizedData> + 'static>(source: File) -> Vec<NormalizedData> {

@@ -198,19 +198,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "csv_parser"
-version = "0.1.0"
-dependencies = [
- "clap",
- "csv",
- "entities",
- "env_logger",
- "log",
- "rand",
- "serde",
-]
-
-[[package]]
 name = "dyn-clone"
 version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -218,7 +205,7 @@ checksum = "bbfc4744c1b8f2a09adc0e55242f60b1af195d88596bd8700be74418c056c555"
 
 [[package]]
 name = "entities"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "csv",
  "serde",
@@ -427,7 +414,7 @@ dependencies = [
 
 [[package]]
 name = "prompter"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "colored",
@@ -594,6 +581,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8229b473baa5980ac72ef434c4415e70c4b5e71b423043adb4ba059f89c99a1"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "slr-tool"
+version = "0.2.0"
+dependencies = [
+ "clap",
+ "csv",
+ "entities",
+ "env_logger",
+ "log",
+ "rand",
+ "serde",
 ]
 
 [[package]]
