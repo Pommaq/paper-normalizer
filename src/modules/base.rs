@@ -1,5 +1,6 @@
 use std::fs::File;
 
+use entities::ResultEntry;
 use serde::de::DeserializeOwned;
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -41,6 +42,18 @@ impl<T: DeserializeOwned + Into<NormalizedData> + 'static> CSVSource<T> {
         let inner = rdr.into_deserialize().filter_map(|p| p.ok());
         Self {
             inner: Box::new(inner),
+        }
+    }
+}
+
+impl From<ResultEntry> for NormalizedData {
+    fn from(value: ResultEntry) -> Self {
+        Self {
+            abstract_: value.abstract_,
+            title: value.title,
+            authors: value.authors,
+            url: value.url,
+            doi: value.doi,
         }
     }
 }

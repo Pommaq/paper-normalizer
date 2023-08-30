@@ -35,13 +35,13 @@ fn allocate_results<T: AsRef<str> + Into<String>>(
 }
 
 #[derive(Parser)]
-#[command(author, version)]
+#[command(version)]
 /// A tool for quickly filtering papers
 struct Arguments {
     pub output_file: String,
     pub users: Vec<String>,
     #[clap(long)]
-    // Path to a CSV file of data dumped from IEEE Xplore
+    /// Path to a CSV file of data dumped from IEEE Xplore
     pub ieee_source: Option<String>,
     #[clap(long)]
     /// Path to a CSV file of data dumped from Springer
@@ -51,12 +51,17 @@ struct Arguments {
     /// Path to a CSV file of data dumped from Scopus
     pub scopus_source: Option<String>,
 
+    #[clap(long)]
+    /// Path to a source already filtered by this tool
+    pub prefiltered_source: Option<String>,
+
     #[clap(short, long)]
     /// Remove duplicate articles based on DOI
     pub deduplicate: bool,
 
     #[clap(short, long)]
-    /// Limit the number of entries collected
+    /// Limit the number of entries collected, you should probably not use
+    /// this since it risks removing relevant articles.
     pub limit: Option<usize>,
 }
 fn main() {
@@ -82,10 +87,16 @@ fn main() {
         reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
     };
 
+    let from_prefiltered_source: Handler = |source: File| {
+        let reader = modules::base::CSVSource::<ResultEntry>::from_file(source);
+        reader.map(|p| p.into()).collect::<Vec<NormalizedData>>()
+    };
+
     let handlers: &[(Option<String>, Handler)] = &[
         (args.ieee_source, from_ieee_source),
         (args.springer_source, from_springer_source),
         (args.scopus_source, from_scopus_source),
+        (args.prefiltered_source, from_prefiltered_source),
     ];
 
     let mut papers: Vec<NormalizedData> = handlers
@@ -105,7 +116,7 @@ fn main() {
 
     if args.deduplicate {
         // Remove duplicates
-        info!("About to filter duplicates");
+        debug!("About to filter duplicates");
         let old_len = papers.len();
 
         let mut seen: HashMap<String, ()> = HashMap::new();
@@ -118,7 +129,7 @@ fn main() {
             }
         });
 
-        info!("Filtered {} entries", old_len - papers.len(),);
+        info!("Filtered {} duplicates", old_len - papers.len(),);
     }
     // So we dont end up with data from only one of the sources
     papers.shuffle(&mut thread_rng());
